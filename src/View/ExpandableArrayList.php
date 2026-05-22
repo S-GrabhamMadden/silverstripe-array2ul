@@ -53,6 +53,7 @@ class ExpandableArrayList extends ViewableData
     private int $textTruncateAt;
     private string $instanceId;
     private bool $isRoot;
+    private bool $allowHtmlAsIs = false;
 
     public function __construct(
         array $data = [],
@@ -103,6 +104,13 @@ class ExpandableArrayList extends ViewableData
     public function setTextTruncateAt(int $n): self
     {
         $this->textTruncateAt = max(0, $n);
+        return $this;
+    }
+
+    public function setAllowHtmlAsIs(bool $allow): self
+    {
+        $this->allowHtmlAsIs = $allow;
+        // No-op since we auto-detect HTML in strings. Method provided for API symmetry.
         return $this;
     }
 
@@ -410,6 +418,10 @@ CSS;
 
     private function renderHtmlSource(string $html): DBField
     {
+        if ($this->allowHtmlAsIs) {
+            // If we're allowed to render HTML as-is, bypass the <pre><code> wrapper and emit raw HTML.
+            return DBField::create_field('HTMLFragment', $html);
+        }
         return DBField::create_field(
             'HTMLFragment',
             '<pre class="eal-html"><code>'
