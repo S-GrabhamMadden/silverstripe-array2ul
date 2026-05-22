@@ -142,7 +142,7 @@ class ExpandableArrayList extends ViewableData
     }
     public function getIsAssoc(): bool
     {
-        return $this->isAssoc($this->data);
+        return $this->isAssocInner($this->data);
     }
     public function getNeedsCollapse(): bool
     {
@@ -454,7 +454,7 @@ CSS;
         );
     }
 
-    private function isAssoc(array $arr): bool
+    private function isAssocInner(array $arr): bool
     {
         if ($arr === []) {
             return false;
