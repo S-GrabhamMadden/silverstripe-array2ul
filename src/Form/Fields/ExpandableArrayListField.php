@@ -1,8 +1,9 @@
 <?php
 
-namespace Sunnysideup\ArrayToUl\View;
+namespace Sunnysideup\ArrayToUl\Form\Fields;
 
 use SilverStripe\Forms\LiteralField;
+use Sunnysideup\ArrayToUl\View\ExpandableArrayList;
 
 /**
  * Form field that displays an array as an expandable HTML list.
@@ -15,7 +16,7 @@ use SilverStripe\Forms\LiteralField;
  *
  *     $fields->addFieldToTab(
  *         'Root.Debug',
- *         ExpandableArrayListField::create('RawData', $this->getRawData())
+ *         ExpandableArrayListField::create('RawData', 'My Heading', $this->getRawData())
  *             ->setCollapseAfter(10)
  *             ->setTitle('Raw payload')
  *     );
@@ -26,6 +27,7 @@ class ExpandableArrayListField extends LiteralField
 
     public function __construct(
         string $name,
+        string $title = null,
         array $value = [],
         int $collapseAfter = 5,
         bool $startExpanded = false,
@@ -37,11 +39,15 @@ class ExpandableArrayListField extends LiteralField
             $startExpanded,
             $emptyLabel
         );
-
+        $html = '';
+        if ($title) {
+            $html = '<h2>' . $title . '</h2>';
+        }
+        $html .=  $this->list->forTemplate();
         // Pass the renderer itself as LiteralField content. It's a
         // ViewableData, so LiteralField::Field() will hand it to the
         // form template, which calls forTemplate() on render.
-        parent::__construct($name, $this->list);
+        parent::__construct($name, $html);
     }
 
     /**

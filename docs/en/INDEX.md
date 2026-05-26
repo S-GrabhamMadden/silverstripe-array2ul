@@ -32,7 +32,7 @@ $MyList
 ## As a form field
 
 ```php
-use Sunnysideup\ArrayToUl\View\ExpandableArrayListField;
+use Sunnysideup\ArrayToUl\Form\Fields\ExpandableArrayListField;
 
 public function getCMSFields()
 {
@@ -40,7 +40,7 @@ public function getCMSFields()
 
     $fields->addFieldToTab(
         'Root.Debug',
-        ExpandableArrayListField::create('RawData', $this->getRawData())
+        ExpandableArrayListField::create('RawData', 'Nice Heading', $this->getRawData())
             ->setCollapseAfter(10)
             ->setTitle('Raw payload')
     );
