@@ -17,7 +17,7 @@
     Style the open state from aria-expanded="true" on either button.
     `$TypeClass` (eal-type-num, eal-type-bool, …) sits on the whole row.
 --%>
-<% if $IsRoot %><div class="eal"><% end_if %>
+<% if $IsRoot %><div class="eal" style="overflow: auto;"><% end_if %>
 
 <div class="eal-section<% if $IsNested %> eal-nested<% end_if %>">
 

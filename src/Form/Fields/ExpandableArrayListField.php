@@ -25,6 +25,8 @@ class ExpandableArrayListField extends LiteralField
 {
     private ExpandableArrayList $list;
 
+    protected $title = '';
+
     public function __construct(
         string $name,
         string $title = null,
@@ -33,21 +35,15 @@ class ExpandableArrayListField extends LiteralField
         bool $startExpanded = false,
         string $emptyLabel = '(empty)'
     ) {
+        $this->title = $title ?? '';
         $this->list = ExpandableArrayList::create(
             $value,
             $collapseAfter,
             $startExpanded,
             $emptyLabel
         );
-        $html = '';
-        if ($title) {
-            $html = '<h2>' . $title . '</h2>';
-        }
-        $html .=  $this->list->forTemplate();
-        // Pass the renderer itself as LiteralField content. It's a
-        // ViewableData, so LiteralField::Field() will hand it to the
-        // form template, which calls forTemplate() on render.
-        parent::__construct($name, $html);
+
+        parent::__construct($name, 'content not set yet');
     }
 
     /**
@@ -83,6 +79,12 @@ class ExpandableArrayListField extends LiteralField
         return $this;
     }
 
+    public function setSummaryLabelKeys(array $keys): static
+    {
+        $this->list->setSummaryLabelKeys($keys);
+        return $this;
+    }
+
     /**
      * Direct access to the underlying renderer for anything the
      * convenience setters don't cover.
@@ -90,5 +92,36 @@ class ExpandableArrayListField extends LiteralField
     public function getList(): ExpandableArrayList
     {
         return $this->list;
+    }
+
+    public function FieldHolder($properties = [])
+    {
+        $this->content = $this->glueContent();
+        return parent::FieldHolder($properties);
+    }
+
+    public function Field($properties = [])
+    {
+        $this->content = $this->glueContent();
+        return parent::Field($properties);
+    }
+
+    private bool $contentSet = false;
+
+    public function glueContent(): string
+    {
+        if ($this->contentSet) {
+            return $this->content;
+        }
+        $this->contentSet = true;
+        $html = '';
+        if ($this->title) {
+            $html = '<h2>' . $this->title . '</h2>';
+        }
+        $html .=  $this->list->forTemplate();
+        // Pass the renderer itself as LiteralField content. It's a
+        // ViewableData, so LiteralField::Field() will hand it to the
+        // form template, which calls forTemplate() on render.
+        return $html;
     }
 }

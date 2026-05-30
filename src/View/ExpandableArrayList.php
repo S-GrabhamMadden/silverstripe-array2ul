@@ -87,6 +87,8 @@ class ExpandableArrayList extends ViewableData
     private int $depth;
     private bool $allowHtmlAsIs = false;
 
+    protected array $summaryLabelKeys = [];
+
     public function __construct(
         array $data = [],
         int $collapseAfter = 25,
@@ -157,6 +159,17 @@ class ExpandableArrayList extends ViewableData
         return $this;
     }
 
+    public function setSummaryLabelKeys(array $keys): self
+    {
+        $this->summaryLabelKeys = $keys;
+        return $this;
+    }
+
+    public function getSummaryLabelKeys(): array
+    {
+        return $this->summaryLabelKeys;
+    }
+
     public function forTemplate()
     {
         return $this->renderWith(self::class);
@@ -225,9 +238,21 @@ class ExpandableArrayList extends ViewableData
      */
     public function getSummaryLabel(): string
     {
+        $name = '';
+        $test = $this->getSummaryLabelKeys();
+        if (!empty($test)) {
+            foreach ($test as $key) {
+                if (isset($this->data[$key])) {
+                    $value = $this->data[$key];
+                    if (is_scalar($value)) {
+                        return (string)$value;
+                    }
+                }
+            }
+        }
         $n = count($this->data);
         if ($this->getIsAssoc()) {
-            return '{…} ' . $n . ' ' . ($n === 1 ? 'key' : 'keys');
+            return  '{…} ' . $n . ' ' . ($n === 1 ? 'key' : 'keys');
         }
         return '[…] ' . $n . ' ' . ($n === 1 ? 'item' : 'items');
     }
@@ -336,6 +361,7 @@ class ExpandableArrayList extends ViewableData
                 $this->collapseFromDepth,
                 $this->depth + 1 // one level deeper
             );
+            $nested->setSummaryLabelKeys($this->summaryLabelKeys);
             return DBField::create_field('HTMLFragment', (string)$nested->forTemplate());
         }
 

@@ -10,7 +10,7 @@
    ========================================================================= */
 
 /* --- lists: undo the browser's default dl/dd indentation so YOU control it - */
-.eal-list            { margin: 0; padding: 0; }
+.eal-list            { margin: 0; padding: 0; padding-bottom: 1rem; }
 .eal-list--seq       { list-style: none; }
 .eal-list--map > .eal-row > dt,
 .eal-list--map > .eal-row > dd { margin: 0; line-height: 2; }
@@ -18,7 +18,7 @@
 /* one key/value pair side by side; drop this block for a stacked layout */
 .eal-list--map > .eal-row {
     display: grid;
-    grid-template-columns: minmax(6rem, max-content) 1fr;
+    grid-template-columns: minmax(calc(5rem + 5vw), max-content) 1fr;
     gap: .15rem .75rem;
 }
 .eal-key   { font-weight: 600; }
@@ -26,7 +26,7 @@
 
 /* --- NESTING: indent each nested block (button + its contents) ----------- */
 .eal-nested {
-    margin-left: 1rem;
+    margin-left: 0rem;
     padding-left: .75rem;
     border-left: 2px solid #e5e7eb;          /* the "tree" guide line */
 }
@@ -47,7 +47,7 @@
     cursor: pointer;
 }
 .eal-toggle:hover,
-.eal-disclosure:hover { background: #f3f4f6; }
+.eal-disclosure:hover { background: #e0e3e8; }
 
 /* chevron: points right when closed, down when open */
 .eal-toggle-icon,
@@ -67,7 +67,6 @@
 .eal-disclosure[aria-expanded="true"] .eal-disclosure-icon {
     transform: rotate(45deg);                /* ▼ open */
 }
-
 /* an open nested disclosure reads as a "live" heading… */
 .eal-disclosure[aria-expanded="true"] {
     color: #1f2937;
@@ -86,3 +85,19 @@
     border-color: #c7d2fe;
     color: #3730a3;
 }
+
+
+.eal-toggle .eal-disclosure-label,
+.eal-disclosure .eal-disclosure-label {
+  color: #555!important;
+}
+.eal-toggle .eal-disclosure-label:hover,
+.eal-disclosure .eal-disclosure-label:hover {
+  color: #333!important;
+}
+.eal-toggle[aria-expanded="true"] .eal-disclosure-label,
+.eal-disclosure[aria-expanded="true"] .eal-disclosure-label {
+    color: #aaa!important;
+     /* hide the label text when open, since the button's own text is enough to show the state */
+}
+
