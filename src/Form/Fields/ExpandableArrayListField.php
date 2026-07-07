@@ -2,6 +2,7 @@
 
 namespace Sunnysideup\ArrayToUl\Form\Fields;
 
+use Override;
 use SilverStripe\Forms\LiteralField;
 use Sunnysideup\ArrayToUl\View\ExpandableArrayList;
 
@@ -23,7 +24,7 @@ use Sunnysideup\ArrayToUl\View\ExpandableArrayList;
  */
 class ExpandableArrayListField extends LiteralField
 {
-    private ExpandableArrayList $list;
+    private readonly ExpandableArrayList $list;
 
     protected $title = '';
 
@@ -50,6 +51,7 @@ class ExpandableArrayListField extends LiteralField
      * Replace the array shown by this field. Accepts an array; anything
      * else is passed through to the parent unchanged.
      */
+    #[Override]
     public function setValue($value, $data = null): static
     {
         if (is_array($value)) {
@@ -58,6 +60,7 @@ class ExpandableArrayListField extends LiteralField
             // re-assign $this->content.
             $this->list->setData($value);
         }
+
         return parent::setValue($value, $data);
     }
 
@@ -94,12 +97,14 @@ class ExpandableArrayListField extends LiteralField
         return $this->list;
     }
 
+    #[Override]
     public function FieldHolder($properties = [])
     {
         $this->content = $this->glueContent();
         return parent::FieldHolder($properties);
     }
 
+    #[Override]
     public function Field($properties = [])
     {
         $this->content = $this->glueContent();
@@ -113,11 +118,13 @@ class ExpandableArrayListField extends LiteralField
         if ($this->contentSet) {
             return $this->content;
         }
+
         $this->contentSet = true;
         $html = '';
         if ($this->title) {
             $html = '<h2>' . $this->title . '</h2>';
         }
+
         $html .=  $this->list->forTemplate();
         // Pass the renderer itself as LiteralField content. It's a
         // ViewableData, so LiteralField::Field() will hand it to the

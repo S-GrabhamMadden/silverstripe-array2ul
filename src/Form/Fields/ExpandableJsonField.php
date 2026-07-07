@@ -2,9 +2,6 @@
 
 namespace Sunnysideup\ArrayToUl\Form\Fields;
 
-use SilverStripe\Forms\LiteralField;
-use Sunnysideup\ArrayToUl\View\ExpandableArrayList;
-
 /**
  * Form field that displays an array as an expandable HTML list.
  *
