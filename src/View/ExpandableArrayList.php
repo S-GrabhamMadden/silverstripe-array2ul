@@ -2,8 +2,12 @@
 
 namespace Sunnysideup\ArrayToUl\View;
 
+use Override;
+use Stringable;
+use SilverStripe\Model\ModelData;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Model\ArrayData;
 use DateTimeInterface;
-use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\FieldType\DBBoolean;
 use SilverStripe\ORM\FieldType\DBCurrency;
 use SilverStripe\ORM\FieldType\DBDate;
@@ -16,8 +20,6 @@ use SilverStripe\ORM\FieldType\DBHTMLVarchar;
 use SilverStripe\ORM\FieldType\DBInt;
 use SilverStripe\ORM\FieldType\DBPercentage;
 use SilverStripe\ORM\FieldType\DBTime;
-use SilverStripe\View\ArrayData;
-use SilverStripe\View\ViewableData;
 
 /**
  * Renders a PHP array (associative, indexed, or nested) as an expandable
@@ -70,7 +72,7 @@ use SilverStripe\View\ViewableData;
  *
  * Template:  templates/Sunnysideup/ArrayToUl/View/ExpandableArrayList.ss
  */
-class ExpandableArrayList extends ViewableData
+class ExpandableArrayList extends ModelData implements Stringable
 {
     private static $casting = [
         'EmptyLabel'    => 'Varchar',
@@ -78,31 +80,29 @@ class ExpandableArrayList extends ViewableData
         'HiddenCount'   => 'Int',
     ];
 
-    private array $data;
     private int $collapseAfter;
-    private bool $startExpanded;
-    private string $emptyLabel;
+
     private int $textTruncateAt;
+
     private int $collapseFromDepth;
-    private int $depth;
+
+    private readonly int $depth;
+
     private bool $allowHtmlAsIs = false;
 
     protected array $summaryLabelKeys = [];
 
     public function __construct(
-        array $data = [],
+        private array $data = [],
         int $collapseAfter = 25,
-        bool $startExpanded = false,
-        string $emptyLabel = '(empty)',
+        private bool $startExpanded = false,
+        private string $emptyLabel = '(empty)',
         int $textTruncateAt = 200,
         int $collapseFromDepth = 2,
         int $depth = 0
     ) {
         parent::__construct();
-        $this->data              = $data;
         $this->collapseAfter     = max(0, $collapseAfter);
-        $this->startExpanded     = $startExpanded;
-        $this->emptyLabel        = $emptyLabel;
         $this->textTruncateAt    = max(0, $textTruncateAt);
         $this->collapseFromDepth = max(0, $collapseFromDepth);
         $this->depth             = max(0, $depth);
@@ -170,11 +170,13 @@ class ExpandableArrayList extends ViewableData
         return $this->summaryLabelKeys;
     }
 
-    public function forTemplate()
+    #[Override]
+    public function forTemplate(): string
     {
         return $this->renderWith(self::class);
     }
 
+    #[Override]
     public function __toString(): string
     {
         return (string)$this->forTemplate();
@@ -240,7 +242,7 @@ class ExpandableArrayList extends ViewableData
     {
         $name = '';
         $test = $this->getSummaryLabelKeys();
-        if (!empty($test)) {
+        if ($test !== []) {
             foreach ($test as $key) {
                 if (isset($this->data[$key])) {
                     $value = $this->data[$key];
@@ -250,10 +252,12 @@ class ExpandableArrayList extends ViewableData
                 }
             }
         }
+
         $n = count($this->data);
         if ($this->getIsAssoc()) {
             return  '{…} ' . $n . ' ' . ($n === 1 ? 'key' : 'keys');
         }
+
         return '[…] ' . $n . ' ' . ($n === 1 ? 'item' : 'items');
     }
 
@@ -292,10 +296,12 @@ class ExpandableArrayList extends ViewableData
         if (is_array($value)) {
             return 'array';
         }
+
         if ($value instanceof DBField) {
             if ($value instanceof DBBoolean) {
                 return 'bool';
             }
+
             if ($value instanceof DBInt
                 || $value instanceof DBFloat
                 || $value instanceof DBDecimal
@@ -303,32 +309,41 @@ class ExpandableArrayList extends ViewableData
                 || $value instanceof DBPercentage) {
                 return 'num';
             }
+
             if ($value instanceof DBDate
                 || $value instanceof DBDatetime
                 || $value instanceof DBTime) {
                 return 'date';
             }
+
             if ($value instanceof DBHTMLText
                 || $value instanceof DBHTMLVarchar) {
                 return 'html';
             }
+
             return 'string';
         }
+
         if ($value instanceof DateTimeInterface) {
             return 'date';
         }
+
         if (is_bool($value)) {
             return 'bool';
         }
+
         if ($value === null) {
             return 'null';
         }
+
         if (is_int($value) || is_float($value)) {
             return 'num';
         }
+
         if (is_string($value)) {
             return $this->looksLikeHtml($value) ? 'html' : 'string';
         }
+
         if (is_object($value)) {
             return 'obj';
         }
@@ -388,7 +403,7 @@ class ExpandableArrayList extends ViewableData
         }
 
         if ($type === 'obj') {
-            $str = method_exists($value, '__toString') ? (string)$value : get_class($value);
+            $str = method_exists($value, '__toString') ? (string)$value : $value::class;
             return $this->wrapHtml('eal-obj', $str);
         }
 
@@ -401,6 +416,7 @@ class ExpandableArrayList extends ViewableData
         if ($strValue === '') {
             return DBField::create_field('HTMLFragment', '<span class="eal-empty">""</span>');
         }
+
         if ($this->textTruncateAt > 0 && mb_strlen($strValue) > $this->textTruncateAt) {
             return $this->renderTruncatedText($strValue);
         }
@@ -425,6 +441,7 @@ class ExpandableArrayList extends ViewableData
             if ($raw === null) {
                 return $this->renderValue(null);
             }
+
             return $this->renderValue($field instanceof DBInt ? (int)$raw : (float)$raw);
         }
 
@@ -432,6 +449,7 @@ class ExpandableArrayList extends ViewableData
             if ($raw === null || $raw === '') {
                 return $this->renderValue(null);
             }
+
             return $this->wrapHtml('eal-date', (string)$raw);
         }
 
@@ -456,6 +474,7 @@ class ExpandableArrayList extends ViewableData
         if ($this->allowHtmlAsIs) {
             return DBField::create_field('HTMLFragment', $html);
         }
+
         return DBField::create_field(
             'HTMLFragment',
             '<pre class="eal-html"><code>'
@@ -505,6 +524,7 @@ class ExpandableArrayList extends ViewableData
         if ($arr === []) {
             return false;
         }
+
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }
