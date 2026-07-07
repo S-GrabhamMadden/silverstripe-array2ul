@@ -23,7 +23,7 @@ use Sunnysideup\ArrayToUl\View\ExpandableArrayList;
  */
 class ExpandableArrayListField extends LiteralField
 {
-    private ExpandableArrayList $list;
+    private readonly ExpandableArrayList $list;
 
     protected $title = '';
 
@@ -58,6 +58,7 @@ class ExpandableArrayListField extends LiteralField
             // re-assign $this->content.
             $this->list->setData($value);
         }
+
         return parent::setValue($value, $data);
     }
 
@@ -113,11 +114,13 @@ class ExpandableArrayListField extends LiteralField
         if ($this->contentSet) {
             return $this->content;
         }
+
         $this->contentSet = true;
         $html = '';
         if ($this->title) {
             $html = '<h2>' . $this->title . '</h2>';
         }
+
         $html .=  $this->list->forTemplate();
         // Pass the renderer itself as LiteralField content. It's a
         // ViewableData, so LiteralField::Field() will hand it to the
